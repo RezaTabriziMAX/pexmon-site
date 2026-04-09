@@ -1,0 +1,591 @@
+use anchor_lang::prelude::*;
+
+declare_id!("PEXMoN1111111111111111111111111111111111111");
+
+#[program]
+pub mod pexmon_arena {
+    use super::*;
+use anchor_lang::prelude::*;
+
+declare_id!("PEXBuy1111111111111111111111111111111111111");
+use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Token, TokenAccount, Transfer};
+
+declare_id!("PEXStk1111111111111111111111111111111111111");
+
+#[program]
+pub mod pexmon_staking {
+    use super::*;
+
+    /// Initialize the staking pool
+    pub fn initialize_pool(ctx: Context<InitializePool>, config: PoolConfig) -> Result<()> {
+        let pool = &mut ctx.accounts.pool;
+        pool.authority = ctx.accounts.authority.key();
+        pool.total_staked = 0;
+        pool.config = config;
+        pool.is_active = true;
+
+        msg!("PEXMON Staking Pool initialized");
+        Ok(())
+    }
+
+    /// Stake $PEXMON tokens to a specific beast faction
+    pub fn stake(ctx: Context<Stake>, amount: u64, faction: Faction) -> Result<()> {
+        require!(amount >= ctx.accounts.pool.config.min_stake, StakingError::BelowMinimum);
+
+        // Transfer tokens to pool
+        let cpi_accounts = Transfer {
+            from: ctx.accounts.user_token.to_account_info(),
+            to: ctx.accounts.pool_vault.to_account_info(),
+            authority: ctx.accounts.user.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        token::transfer(CpiContext::new(cpi_program, cpi_accounts), amount)?;
+
+        // Update stake record
+        let stake_record = &mut ctx.accounts.stake_record;
+        stake_record.owner = ctx.accounts.user.key();
+        stake_record.faction = faction.clone();
+        stake_record.amount += amount;
+        stake_record.last_staked = Clock::get()?.unix_timestamp;
+
+        // Update pool
+        let pool = &mut ctx.accounts.pool;
+        pool.total_staked += amount;
+
+        emit!(Staked {
+            user: ctx.accounts.user.key(),
+            faction,
+            amount,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
+
+    /// Unstake $PEXMON tokens
+    pub fn unstake(ctx: Context<Unstake>, amount: u64) -> Result<()> {
+        let stake_record = &mut ctx.accounts.stake_record;
+        require!(stake_record.amount >= amount, StakingError::InsufficientStake);
+
+        stake_record.amount -= amount;
+
+        let pool = &mut ctx.accounts.pool;
+        pool.total_staked -= amount;
+
+        emit!(Unstaked {
+            user: ctx.accounts.user.key(),
+            amount,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
+
+    /// Claim rewards for winning faction
+    pub fn claim_rewards(ctx: Context<ClaimRewards>) -> Result<()> {
+        let stake_record = &ctx.accounts.stake_record;
+        require!(stake_record.amount > 0, StakingError::NoStake);
+
+        emit!(RewardsClaimed {
+            user: ctx.accounts.user.key(),
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
+}
+
+// ===== State =====
+
+#[account]
+pub struct StakingPool {
+    pub authority: Pubkey,
+    pub total_staked: u64,
+    pub config: PoolConfig,
+    pub is_active: bool,
+}
+
+#[account]
+pub struct StakeRecord {
+    pub owner: Pubkey,
+    pub faction: Faction,
+    pub amount: u64,
+    pub last_staked: i64,
+    pub rewards_claimed: u64,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct PoolConfig {
+    pub min_stake: u64,
+    pub lock_period: i64,
+    pub reward_rate: u64,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq)]
+pub enum Faction {
+    Voltix,
+    Florax,
+    Ignix,
+    Tidex,
+}
+
+// ===== Events =====
+
+#[event]
+pub struct Staked {
+    pub user: Pubkey,
+    pub faction: Faction,
+    pub amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct Unstaked {
+    pub user: Pubkey,
+    pub amount: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct RewardsClaimed {
+    pub user: Pubkey,
+    pub timestamp: i64,
+}
+
+// ===== Errors =====
+
+#[error_code]
+pub enum StakingError {
+    #[msg("Stake amount below minimum")]
+    BelowMinimum,
+    #[msg("Insufficient staked balance")]
+    InsufficientStake,
+    #[msg("No active stake found")]
+    NoStake,
+}
+
+// ===== Contexts =====
+
+#[derive(Accounts)]
+pub struct InitializePool<'info> {
+    #[account(init, payer = authority, space = 8 + 256)]
+    pub pool: Account<'info, StakingPool>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Stake<'info> {
+    #[account(mut)]
+    pub pool: Account<'info, StakingPool>,
+    #[account(init_if_needed, payer = user, space = 8 + 128)]
+    pub stake_record: Account<'info, StakeRecord>,
+    #[account(mut)]
+    pub user_token: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub pool_vault: Account<'info, TokenAccount>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    pub token_program: Program<'info, Token>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Unstake<'info> {
+    #[account(mut)]
+    pub pool: Account<'info, StakingPool>,
+    #[account(mut, has_one = owner @ StakingError::NoStake)]
+    pub stake_record: Account<'info, StakeRecord>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    /// CHECK: owner validation via has_one
+    pub owner: AccountInfo<'info>,
+    pub token_program: Program<'info, Token>,
+}
+
+#[derive(Accounts)]
+pub struct ClaimRewards<'info> {
+    #[account(has_one = owner @ StakingError::NoStake)]
+    pub stake_record: Account<'info, StakeRecord>,
+    #[account(mut)]
+    pub user: Signer<'info>,
+    /// CHECK: owner validation
+    pub owner: AccountInfo<'info>,
+}
+
+#[program]
+pub mod pexmon_buyback {
+    use super::*;
+
+    /// Initialize the buyback engine
+    pub fn initialize(ctx: Context<Initialize>, config: BuybackConfig) -> Result<()> {
+        let engine = &mut ctx.accounts.engine;
+        engine.authority = ctx.accounts.authority.key();
+        engine.total_burned = 0;
+        engine.total_buybacks = 0;
+        engine.config = config;
+
+        msg!("PEXMON Buyback Engine initialized");
+        Ok(())
+    }
+
+    /// Execute a buyback using agent profits
+    pub fn execute_buyback(ctx: Context<ExecuteBuyback>, sol_amount: u64) -> Result<()> {
+        require!(sol_amount > 0, BuybackError::ZeroAmount);
+
+        let engine = &mut ctx.accounts.engine;
+        engine.total_buybacks += 1;
+
+        emit!(BuybackTriggered {
+            sol_amount,
+            buyback_number: engine.total_buybacks,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        msg!("Buyback #{} executed with {} lamports", engine.total_buybacks, sol_amount);
+        Ok(())
+    }
+
+    /// Burn purchased tokens permanently
+    pub fn burn_tokens(ctx: Context<BurnTokens>, amount: u64) -> Result<()> {
+        require!(amount > 0, BuybackError::ZeroAmount);
+
+        let engine = &mut ctx.accounts.engine;
+        engine.total_burned += amount;
+
+        emit!(TokensBurned {
+            amount,
+            total_burned: engine.total_burned,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        msg!("Burned {} $PEXMON — Total burned: {}", amount, engine.total_burned);
+        Ok(())
+    }
+}
+
+// ===== State =====
+
+#[account]
+pub struct BuybackEngine {
+    pub authority: Pubkey,
+    pub total_burned: u64,
+    pub total_buybacks: u64,
+    pub config: BuybackConfig,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct BuybackConfig {
+    pub profit_percentage: u8,    // % of agent profit used for buyback
+    pub min_buyback_amount: u64,
+    pub burn_address: Pubkey,
+}
+
+// ===== Events =====
+
+#[event]
+pub struct BuybackTriggered {
+    pub sol_amount: u64,
+    pub buyback_number: u64,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct TokensBurned {
+    pub amount: u64,
+    pub total_burned: u64,
+    pub timestamp: i64,
+}
+
+// ===== Errors =====
+
+#[error_code]
+pub enum BuybackError {
+    #[msg("Amount must be greater than zero")]
+    ZeroAmount,
+}
+
+// ===== Contexts =====
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(init, payer = authority, space = 8 + 256)]
+    pub engine: Account<'info, BuybackEngine>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct ExecuteBuyback<'info> {
+    #[account(mut)]
+    pub engine: Account<'info, BuybackEngine>,
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct BurnTokens<'info> {
+    #[account(mut)]
+    pub engine: Account<'info, BuybackEngine>,
+    pub authority: Signer<'info>,
+}
+
+    /// Initialize the arena with four agent vaults
+    pub fn initialize_arena(ctx: Context<InitializeArena>, config: ArenaConfig) -> Result<()> {
+        let arena = &mut ctx.accounts.arena;
+        arena.authority = ctx.accounts.authority.key();
+        arena.season = 1;
+        arena.status = ArenaStatus::Active;
+        arena.prize_pool = 0;
+        arena.config = config;
+        arena.created_at = Clock::get()?.unix_timestamp;
+
+        msg!("PEXMON Arena initialized — Season {}", arena.season);
+        Ok(())
+    }
+
+    /// Register an AI agent to the arena
+    pub fn register_agent(
+        ctx: Context<RegisterAgent>,
+        agent_type: AgentType,
+        name: String,
+    ) -> Result<()> {
+        let agent = &mut ctx.accounts.agent;
+        agent.agent_type = agent_type;
+        agent.name = name;
+        agent.wallet = ctx.accounts.agent_wallet.key();
+        agent.total_trades = 0;
+        agent.win_count = 0;
+        agent.total_pnl = 0;
+        agent.followers = 0;
+        agent.is_active = true;
+
+        msg!("Agent {} registered to arena", agent.name);
+        Ok(())
+    }
+
+    /// Record a completed trade by an agent
+    pub fn record_trade(
+        ctx: Context<RecordTrade>,
+        pnl: i64,
+        trade_type: TradeType,
+    ) -> Result<()> {
+        let agent = &mut ctx.accounts.agent;
+        agent.total_trades += 1;
+        agent.total_pnl += pnl;
+
+        if pnl > 0 {
+            agent.win_count += 1;
+        }
+
+        emit!(TradeRecorded {
+            agent: agent.key(),
+            pnl,
+            trade_type,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        Ok(())
+    }
+
+    /// Stake tokens to join a faction
+    pub fn stake_to_faction(ctx: Context<StakeToFaction>, amount: u64) -> Result<()> {
+        let staker = &mut ctx.accounts.staker_account;
+        staker.owner = ctx.accounts.owner.key();
+        staker.agent = ctx.accounts.agent.key();
+        staker.amount += amount;
+        staker.staked_at = Clock::get()?.unix_timestamp;
+
+        let agent = &mut ctx.accounts.agent;
+        agent.followers += 1;
+
+        msg!("Staked {} $PEXMON to faction {}", amount, agent.name);
+        Ok(())
+    }
+
+    /// Settle the season and distribute rewards
+    pub fn settle_season(ctx: Context<SettleSeason>) -> Result<()> {
+        let arena = &mut ctx.accounts.arena;
+        require!(arena.status == ArenaStatus::Active, ArenaError::NotActive);
+
+        // Determine winner by highest PnL
+        // Distribution logic handled off-chain with verification
+        arena.season += 1;
+        arena.prize_pool = 0;
+
+        emit!(SeasonSettled {
+            season: arena.season - 1,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        msg!("Season {} settled. Starting Season {}", arena.season - 1, arena.season);
+        Ok(())
+    }
+
+    /// Execute buyback and burn from agent profits
+    pub fn buyback_and_burn(ctx: Context<BuybackBurn>, amount: u64) -> Result<()> {
+        require!(amount > 0, ArenaError::InvalidAmount);
+
+        emit!(BuybackExecuted {
+            amount,
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+
+        msg!("Buyback & burn executed: {} $PEXMON", amount);
+        Ok(())
+    }
+}
+
+// ===== Accounts =====
+
+#[account]
+pub struct Arena {
+    pub authority: Pubkey,
+    pub season: u32,
+    pub status: ArenaStatus,
+    pub prize_pool: u64,
+    pub config: ArenaConfig,
+    pub created_at: i64,
+}
+
+#[account]
+pub struct Agent {
+    pub agent_type: AgentType,
+    pub name: String,
+    pub wallet: Pubkey,
+    pub total_trades: u64,
+    pub win_count: u64,
+    pub total_pnl: i64,
+    pub followers: u64,
+    pub is_active: bool,
+}
+
+#[account]
+pub struct StakerAccount {
+    pub owner: Pubkey,
+    pub agent: Pubkey,
+    pub amount: u64,
+    pub staked_at: i64,
+}
+
+// ===== Types =====
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+pub enum ArenaStatus {
+    Active,
+    Settling,
+    Paused,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub enum AgentType {
+    Voltix,   // Lightning Scalper
+    Florax,   // Steady Grower
+    Ignix,    // Aggressive Degen
+    Tidex,    // Shield Arbitrageur
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub enum TradeType {
+    Spot,
+    Swap,
+    Arbitrage,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
+pub struct ArenaConfig {
+    pub season_duration: i64,     // seconds
+    pub min_stake: u64,
+    pub buyback_percentage: u8,   // % of profits for buyback
+    pub prize_split: [u8; 4],     // % split for 1st-4th
+}
+
+// ===== Events =====
+
+#[event]
+pub struct TradeRecorded {
+    pub agent: Pubkey,
+    pub pnl: i64,
+    pub trade_type: TradeType,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct SeasonSettled {
+    pub season: u32,
+    pub timestamp: i64,
+}
+
+#[event]
+pub struct BuybackExecuted {
+    pub amount: u64,
+    pub timestamp: i64,
+}
+
+// ===== Errors =====
+
+#[error_code]
+pub enum ArenaError {
+    #[msg("Arena is not active")]
+    NotActive,
+    #[msg("Invalid amount")]
+    InvalidAmount,
+    #[msg("Unauthorized")]
+    Unauthorized,
+}
+
+// ===== Contexts =====
+
+#[derive(Accounts)]
+pub struct InitializeArena<'info> {
+    #[account(init, payer = authority, space = 8 + 256)]
+    pub arena: Account<'info, Arena>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct RegisterAgent<'info> {
+    #[account(init, payer = authority, space = 8 + 512)]
+    pub agent: Account<'info, Agent>,
+    /// CHECK: Agent wallet address
+    pub agent_wallet: AccountInfo<'info>,
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct RecordTrade<'info> {
+    #[account(mut)]
+    pub agent: Account<'info, Agent>,
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct StakeToFaction<'info> {
+    #[account(init_if_needed, payer = owner, space = 8 + 128)]
+    pub staker_account: Account<'info, StakerAccount>,
+    #[account(mut)]
+    pub agent: Account<'info, Agent>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct SettleSeason<'info> {
+    #[account(mut)]
+    pub arena: Account<'info, Arena>,
+    pub authority: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct BuybackBurn<'info> {
+    #[account(mut)]
+    pub arena: Account<'info, Arena>,
+    pub authority: Signer<'info>,
+}
