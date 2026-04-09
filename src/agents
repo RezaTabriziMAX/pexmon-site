@@ -1,0 +1,895 @@
+# PEXMON AI Agents
+
+"""
+PEXMON AI Agent: FLORAX 🌿
+Steady Grower — Long-term value accumulation
+
+Strategy: Patient holder that identifies undervalued tokens and accumulates over time.
+Risk Profile: Low | Speed: 30 | Defense: 90
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+logger = logging.getLogger("florax")
+
+
+@dataclass
+class AgentConfig:
+    name: str = "FLORAX"
+    agent_type: str = "steady_grower"
+    max_position_size: float = 0.25
+    take_profit_pct: float = 0.08         # 8% TP — patient exits
+    stop_loss_pct: float = 0.03           # 3% SL
+    rebalance_interval: int = 3600        # Check every hour
+    min_confidence: float = 0.80
+    pairs: list = None
+
+    def __post_init__(self):
+        if self.pairs is None:
+            self.pairs = ["SOL/USDC", "JUP/USDC", "PYTH/USDC", "RAY/USDC"]
+
+
+class FloraxAgent:
+    """
+    FLORAX 🌿 — Steady Grower
+
+    Analyzes fundamental metrics, TVL trends, and on-chain activity
+    to identify undervalued tokens for long-term accumulation.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.portfolio = {}
+        self.total_pnl = 0.0
+        self.total_trades = 0
+        self.win_count = 0
+
+    @property
+    def win_rate(self) -> float:
+        return self.win_count / self.total_trades if self.total_trades > 0 else 0.0
+
+    async def analyze_fundamentals(self, pair: str) -> dict:
+        """Analyze token fundamentals: TVL, volume trend, holder growth"""
+        raise NotImplementedError("Connect to Birdeye/DeFiLlama API")
+
+    async def run(self):
+        self.is_running = True
+        logger.info(f"🌿 FLORAX starting — patience is power")
+        while self.is_running:
+            for pair in self.config.pairs:
+                try:
+                    await self.analyze_fundamentals(pair)
+                except Exception as e:
+                    logger.error(f"Error: {e}")
+            await asyncio.sleep(self.config.rebalance_interval)
+
+    async def stop(self):
+        self.is_running = False
+        logger.info(f"🌿 FLORAX stopped | Trades: {self.total_trades} | PnL: {self.total_pnl:.4f}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(FloraxAgent().run())
+
+"""
+PEXMON AI Agent: IGNIX 🔥
+Aggressive Degen — High risk, high reward meme hunter
+
+Strategy: Detects trending memes and narratives early, goes all-in.
+Risk Profile: Extreme | Speed: 75 | Defense: 15
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+logger = logging.getLogger("ignix")
+
+
+@dataclass
+class AgentConfig:
+    name: str = "IGNIX"
+    agent_type: str = "aggressive_degen"
+    max_position_size: float = 0.50       # 50% YOLO
+    take_profit_pct: float = 0.30         # 30% TP — moon targets
+    stop_loss_pct: float = 0.15           # 15% SL — wide stops
+    scan_interval: int = 30               # Scan every 30s
+    min_confidence: float = 0.60          # Lower threshold — degen mode
+    social_weight: float = 0.40           # Twitter/social signal weight
+
+class IgnixAgent:
+    """
+    IGNIX 🔥 — Aggressive Degen
+
+    Monitors social media trends, new token launches, and whale wallets
+    to catch meme pumps early. High risk, high reward.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.total_pnl = 0.0
+        self.total_trades = 0
+        self.win_count = 0
+
+    @property
+    def win_rate(self) -> float:
+        return self.win_count / self.total_trades if self.total_trades > 0 else 0.0
+
+    async def scan_trending_tokens(self) -> list:
+        """Scan Pump.fun, Birdeye, and Twitter for trending tokens"""
+        raise NotImplementedError("Connect to social + DEX APIs")
+
+    async def analyze_whale_activity(self, token: str) -> dict:
+        """Track whale wallet movements for a token"""
+        raise NotImplementedError("Connect to Helius/Solscan API")
+
+    async def run(self):
+        self.is_running = True
+        logger.info(f"🔥 IGNIX starting — degen mode activated")"""
+PEXMON AI Agent: FLORAX 🌿
+Steady Grower — Long-term value accumulation
+
+Strategy: Patient holder that identifies undervalued tokens and accumulates over time.
+Risk Profile: Low | Speed: 30 | Defense: 90
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+logger = logging.getLogger("florax")
+
+
+@dataclass
+class AgentConfig:
+    name: str = "FLORAX"
+    agent_type: str = "steady_grower"
+    max_position_size: float = 0.25
+    take_profit_pct: float = 0.08         # 8% TP — patient exits
+    stop_loss_pct: float = 0.03           # 3% SL
+    rebalance_interval: int = 3600        # Check every hour
+    min_confidence: float = 0.80
+    pairs: list = None
+
+    def __post_init__(self):
+        if self.pairs is None:
+            self.pairs = ["SOL/USDC", "JUP/USDC", "PYTH/USDC", "RAY/USDC"]
+
+
+class FloraxAgent:
+    """
+    FLORAX 🌿 — Steady Grower
+
+    Analyzes fundamental metrics, TVL trends, and on-chain activity
+    to identify undervalued tokens for long-term accumulation.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.portfolio = {}
+        self.total_pnl = 0.0
+        self.total_trades = 0
+        self.win_count = 0
+
+    @property
+    def win_rate(self) -> float:
+        return self.win_count / self.total_trades if self.total_trades > 0 else 0.0
+
+    async def analyze_fundamentals(self, pair: str) -> dict:
+        """Analyze token fundamentals: TVL, volume trend, holder growth"""
+        raise NotImplementedError("Connect to Birdeye/DeFiLlama API")
+
+    async def run(self):
+        self.is_running = True
+        logger.info(f"🌿 FLORAX starting — patience is power")
+        while self.is_running:
+            for pair in self.config.pairs:
+                try:
+                    await self.analyze_fundamentals(pair)
+                except Exception as e:
+                    logger.error(f"Error: {e}")
+            await asyncio.sleep(self.config.rebalance_interval)
+
+    async def stop(self):
+        self.is_running = False
+        logger.info(f"🌿 FLORAX stopped | Trades: {self.total_trades} | PnL: {self.total_pnl:.4f}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(FloraxAgent().run())
+
+        while self.is_running:
+            try:
+                trending = await self.scan_trending_tokens()"""
+PEXMON AI Agent: IGNIX 🔥
+Aggressive Degen — High risk, high reward meme hunter
+
+Strategy: Detects trending memes and narratives early, goes all-in.
+Risk Profile: Extreme | Speed: 75 | Defense: 15
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+logger = logging.getLogger("ignix")
+
+
+@dataclass
+class AgentConfig:
+    name: str = "IGNIX"
+    agent_type: str = "aggressive_degen"
+    max_position_size: float = 0.50       # 50% YOLO
+    take_profit_pct: float = 0.30         # 30% TP — moon targets
+    stop_loss_pct: float = 0.15           # 15% SL — wide stops
+    scan_interval: int = 30               # Scan every 30s
+    min_confidence: float = 0.60          # Lower threshold — degen mode
+    social_weight: float = 0.40           # Twitter/social signal weight
+
+class IgnixAgent:
+    """
+    IGNIX 🔥 — Aggressive Degen
+
+    Monitors social media trends, new token launches, and whale wallets
+    to catch meme pumps early. High risk, high reward.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.total_pnl = 0.0
+        self.total_trades = 0
+        self.win_count = 0
+
+    @property
+    def win_rate(self) -> float:
+        return self.win_count / self.total_trades if self.total_trades > 0 else 0.0
+
+    async def scan_trending_tokens(self) -> list:
+        """Scan Pump.fun, Birdeye, and Twitter for trending tokens"""
+        raise NotImplementedError("Connect to social + DEX APIs")
+
+    async def analyze_whale_activity(self, token: str) -> dict:
+        """Track whale wallet movements for a token"""
+        raise NotImplementedError("Connect to Helius/Solscan API")
+
+    async def run(self):
+        self.is_running = True
+        logger.info(f"🔥 IGNIX starting — degen mode activated")
+        while self.is_running:
+            try:
+                trending = await self.scan_trending_tokens()
+                for token in trending:
+                    await self.analyze_whale_activity(token)
+            except Exception as e:
+                logger.error(f"Error: {e}")
+            await asyncio.sleep(self.config.scan_interval)
+
+    async def stop(self):
+        self.is_running = False
+        logger.info(f"🔥 IGNIX stopped | Trades: {self.total_trades} | PnL: {self.total_pnl:.4f}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(IgnixAgent().run())
+"""
+PEXMON AI Agent: TIDEX 🌊
+Shield Arbitrageur — Defensive hedging and arbitrage
+
+Strategy: Finds price discrepancies across DEXs and exploits spreads with minimal risk.
+Risk Profile: Very Low | Speed: 60 | Defense: 95
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+logger = logging.getLogger("tidex")
+
+
+@dataclass
+class AgentConfig:
+    name: str = "TIDEX"
+    agent_type: str = "shield_arbitrageur"
+    max_position_size: float = 0.20
+    min_spread_pct: float = 0.003         # Minimum 0.3% spread to trade
+    max_drawdown_pct: float = 0.02        # 2% max drawdown — strict risk
+    scan_interval: int = 5                # Scan every 5 seconds
+    min_confidence: float = 0.85
+    dex_sources: list = None
+
+    def __post_init__(self):
+        if self.dex_sources is None:
+            self.dex_sources = ["jupiter", "raydium", "orca", "meteora"]
+
+
+class TidexAgent:
+    """
+    TIDEX 🌊 — Shield Arbitrageur
+
+    Continuously monitors price across multiple Solana DEXs to find
+    arbitrage opportunities. Executes with minimal risk and tight controls.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.total_pnl = 0.0
+        self.total_trades = 0
+        self.win_count = 0
+        self.max_drawdown_seen = 0.0
+
+    @property
+    def win_rate(self) -> float:
+        return self.win_count / self.total_trades if self.total_trades > 0 else 0.0
+
+    async def scan_cross_dex_prices(self, pair: str) -> dict:
+        """Fetch price from all DEX sources and find discrepancies"""
+        raise NotImplementedError("Connect to multi-DEX price feeds")
+
+    async def calculate_arbitrage(self, prices: dict) -> Optional[dict]:
+        """Calculate if an arb opportunity exists after fees"""
+        raise NotImplementedError("Implement arb calculation logic")
+
+    async def run(self):
+        self.is_running = True
+        logger.info(f"🌊 TIDEX starting — shield wall activated")
+        while self.is_running:
+            try:
+                for pair in ["SOL/USDC", "RAY/USDC", "JUP/USDC"]:
+                    prices = await self.scan_cross_dex_prices(pair)
+                    await self.calculate_arbitrage(prices)
+            except Exception as e:
+                logger.error(f"Error: {e}")
+            await asyncio.sleep(self.config.scan_interval)
+
+    async def stop(self):
+        self.is_running = False
+        logger.info(f"🌊 TIDEX stopped | Trades: {self.total_trades} | PnL: {self.total_pnl:.4f}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(TidexAgent().run())
+
+"""
+PEXMON AI Agent: VOLTIX ⚡
+Lightning Scalper — High-frequency short trades
+
+Strategy: Captures instant price spreads with millisecond reactions.
+Risk Profile: Medium | Speed: 95 | Defense: 40
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+from enum import Enum
+
+logger = logging.getLogger("voltix")
+
+
+class SignalType(Enum):
+    LONG = "long"
+    SHORT = "short"
+    NEUTRAL = "neutral"
+
+
+@dataclass
+class TradeSignal:
+    signal: SignalType
+    confidence: float
+    entry_price: float
+    take_profit: float
+    stop_loss: float
+    size_pct: float
+
+
+@dataclass
+class AgentConfig:
+    """Voltix configuration — optimized for speed"""
+    name: str = "VOLTIX"
+    agent_type: str = "lightning_scalper"
+    max_position_size: float = 0.15       # 15% of portfolio per trade
+    take_profit_pct: float = 0.008        # 0.8% TP — tight scalps
+    stop_loss_pct: float = 0.004          # 0.4% SL — fast exits
+    max_trades_per_hour: int = 50
+    min_confidence: float = 0.72
+    cooldown_seconds: int = 3
+    pairs: list = None
+
+    def __post_init__(self):
+        if self.pairs is None:
+            self.pairs = ["SOL/USDC", "RAY/USDC", "JUP/USDC", "BONK/SOL"]
+
+
+class VoltixAgent:
+    """
+    VOLTIX ⚡ — Lightning Scalper
+
+    High-frequency trading agent that monitors order book depth,
+    volume spikes, and micro price patterns to capture rapid spreads.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.trades_this_hour = 0
+        self.total_pnl = 0.0
+        self.win_count = 0
+        self.total_trades = 0
+
+    @property
+    def win_rate(self) -> float:
+        if self.total_trades == 0:
+            return 0.0
+        return self.win_count / self.total_trades
+
+    async def analyze_orderbook(self, pair: str) -> dict:
+        """Analyze order book depth for scalping opportunities"""
+        # Fetch order book data from DEX
+        orderbook = await self._fetch_orderbook(pair)
+
+        bid_depth = sum(o["size"] for o in orderbook["bids"][:5])
+        ask_depth = sum(o["size"] for o in orderbook["asks"][:5])
+        imbalance = (bid_depth - ask_depth) / (bid_depth + ask_depth)
+
+        spread = orderbook["asks"][0]["price"] - orderbook["bids"][0]["price"]
+        spread_pct = spread / orderbook["bids"][0]["price"]
+
+        return {
+            "pair": pair,
+            "bid_depth": bid_depth,
+            "ask_depth": ask_depth,
+            "imbalance": imbalance,
+            "spread_pct": spread_pct,
+            "mid_price": (orderbook["bids"][0]["price"] + orderbook["asks"][0]["price"]) / 2,
+        }
+
+    async def detect_volume_spike(self, pair: str, window: int = 60) -> float:
+        """Detect unusual volume activity in the last N seconds"""
+        recent_vol = await self._fetch_recent_volume(pair, window)
+        avg_vol = await self._fetch_average_volume(pair, window * 10)
+
+        if avg_vol == 0:
+            return 0.0
+        return recent_vol / avg_vol
+
+    async def generate_signal(self, pair: str) -> TradeSignal:
+        """Generate a trade signal based on orderbook + volume analysis"""
+        ob = await self.analyze_orderbook(pair)
+        vol_spike = await self.detect_volume_spike(pair)
+
+        confidence = 0.5
+
+        # Strong buy pressure
+        if ob["imbalance"] > 0.3:
+            confidence += 0.15
+        elif ob["imbalance"] < -0.3:
+            confidence -= 0.15
+
+        # Volume spike confirmation
+        if vol_spike > 2.0:
+            confidence += 0.12
+        elif vol_spike > 1.5:
+            confidence += 0.06
+
+        # Tight spread = good for scalping
+        if ob["spread_pct"] < 0.001:
+            confidence += 0.08
+
+        if confidence >= self.config.min_confidence:
+            signal = SignalType.LONG if ob["imbalance"] > 0 else SignalType.SHORT
+        else:
+            signal = SignalType.NEUTRAL
+
+        mid = ob["mid_price"]
+        direction = 1 if signal == SignalType.LONG else -1
+
+        return TradeSignal(
+            signal=signal,
+            confidence=min(confidence, 0.99),
+            entry_price=mid,
+            take_profit=mid * (1 + direction * self.config.take_profit_pct),
+            stop_loss=mid * (1 - direction * self.config.stop_loss_pct),
+            size_pct=self.config.max_position_size * confidence,
+        )
+
+    async def execute_trade(self, signal: TradeSignal) -> dict:
+        """Execute a trade based on signal"""
+        if signal.signal == SignalType.NEUTRAL:
+            return {"status": "skipped", "reason": "neutral signal"}
+
+        if self.trades_this_hour >= self.config.max_trades_per_hour:
+            return {"status": "skipped", "reason": "hourly limit reached"}
+
+        # Execute via Jupiter/Raydium swap
+        result = await self._submit_swap(signal)
+
+        self.total_trades += 1
+        self.trades_this_hour += 1
+
+        if result.get("pnl", 0) > 0:
+            self.win_count += 1
+
+        self.total_pnl += result.get("pnl", 0)
+
+        logger.info(
+            f"⚡ VOLTIX Trade #{self.total_trades} | "
+            f"PnL: {result.get('pnl', 0):.4f} | "
+            f"Win Rate: {self.win_rate:.1%}"
+        )
+
+        return result
+
+    async def run(self):
+        """Main trading loop"""
+        self.is_running = True
+        logger.info(f"⚡ VOLTIX starting — monitoring {len(self.config.pairs)} pairs")
+
+        while self.is_running:
+            for pair in self.config.pairs:
+                try:
+                    signal = await self.generate_signal(pair)
+                    if signal.signal != SignalType.NEUTRAL:
+                        await self.execute_trade(signal)
+                except Exception as e:
+                    logger.error(f"Error processing {pair}: {e}")
+
+                await asyncio.sleep(self.config.cooldown_seconds)
+
+    async def stop(self):
+        """Stop the agent"""
+        self.is_running = False
+        logger.info(
+            f"⚡ VOLTIX stopped | "
+            f"Trades: {self.total_trades} | "
+            f"PnL: {self.total_pnl:.4f} | "
+            f"Win Rate: {self.win_rate:.1%}"
+        )
+
+    # ===== Internal methods (to be connected to real DEX) =====
+
+    async def _fetch_orderbook(self, pair: str) -> dict:
+        """Fetch orderbook from Jupiter/Raydium — placeholder"""
+        raise NotImplementedError("Connect to DEX API")
+
+    async def _fetch_recent_volume(self, pair: str, window: int) -> float:
+        raise NotImplementedError("Connect to data feed")
+
+    async def _fetch_average_volume(self, pair: str, window: int) -> float:
+        raise NotImplementedError("Connect to data feed")
+
+    async def _submit_swap(self, signal: TradeSignal) -> dict:
+        raise NotImplementedError("Connect to Jupiter swap API")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    agent = VoltixAgent()
+    asyncio.run(agent.run())
+
+                for token in trending:
+                    await self.analyze_whale_activity(token)"""
+PEXMON AI Agent: VOLTIX ⚡
+Lightning Scalper — High-frequency short trades
+
+Strategy: Captures instant price spreads with millisecond reactions.
+Risk Profile: Medium | Speed: 95 | Defense: 40
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+from enum import Enum
+
+logger = logging.getLogger("voltix")
+
+
+class SignalType(Enum):
+    LONG = "long"
+    SHORT = "short"
+    NEUTRAL = "neutral"
+
+
+@dataclass
+class TradeSignal:
+    signal: SignalType
+    confidence: float
+    entry_price: float
+    take_profit: float
+    stop_loss: float
+    size_pct: float
+
+
+@dataclass
+class AgentConfig:
+    """Voltix configuration — optimized for speed"""
+    name: str = "VOLTIX"
+    agent_type: str = "lightning_scalper"
+    max_position_size: float = 0.15       # 15% of portfolio per trade
+    take_profit_pct: float = 0.008        # 0.8% TP — tight scalps
+    stop_loss_pct: float = 0.004          # 0.4% SL — fast exits
+    max_trades_per_hour: int = 50
+    min_confidence: float = 0.72
+    cooldown_seconds: int = 3
+    pairs: list = None
+
+    def __post_init__(self):
+        if self.pairs is None:
+            self.pairs = ["SOL/USDC", "RAY/USDC", "JUP/USDC", "BONK/SOL"]
+
+
+class VoltixAgent:
+    """
+    VOLTIX ⚡ — Lightning Scalper
+
+    High-frequency trading agent that monitors order book depth,
+    volume spikes, and micro price patterns to capture rapid spreads.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.trades_this_hour = 0
+        self.total_pnl = 0.0
+        self.win_count = 0
+        self.total_trades = 0
+
+    @property
+    def win_rate(self) -> float:
+        if self.total_trades == 0:
+            return 0.0
+        return self.win_count / self.total_trades
+
+    async def analyze_orderbook(self, pair: str) -> dict:
+        """Analyze order book depth for scalping opportunities"""
+        # Fetch order book data from DEX
+        orderbook = await self._fetch_orderbook(pair)
+
+        bid_depth = sum(o["size"] for o in orderbook["bids"][:5])
+        ask_depth = sum(o["size"] for o in orderbook["asks"][:5])
+        imbalance = (bid_depth - ask_depth) / (bid_depth + ask_depth)
+
+        spread = orderbook["asks"][0]["price"] - orderbook["bids"][0]["price"]
+        spread_pct = spread / orderbook["bids"][0]["price"]
+
+        return {
+            "pair": pair,
+            "bid_depth": bid_depth,
+            "ask_depth": ask_depth,
+            "imbalance": imbalance,
+            "spread_pct": spread_pct,
+            "mid_price": (orderbook["bids"][0]["price"] + orderbook["asks"][0]["price"]) / 2,
+        }
+
+    async def detect_volume_spike(self, pair: str, window: int = 60) -> float:
+        """Detect unusual volume activity in the last N seconds"""
+        recent_vol = await self._fetch_recent_volume(pair, window)
+        avg_vol = await self._fetch_average_volume(pair, window * 10)
+
+        if avg_vol == 0:
+            return 0.0
+        return recent_vol / avg_vol
+
+    async def generate_signal(self, pair: str) -> TradeSignal:
+        """Generate a trade signal based on orderbook + volume analysis"""
+        ob = await self.analyze_orderbook(pair)
+        vol_spike = await self.detect_volume_spike(pair)
+
+        confidence = 0.5
+
+        # Strong buy pressure
+        if ob["imbalance"] > 0.3:
+            confidence += 0.15
+        elif ob["imbalance"] < -0.3:
+            confidence -= 0.15
+
+        # Volume spike confirmation
+        if vol_spike > 2.0:
+            confidence += 0.12
+        elif vol_spike > 1.5:
+            confidence += 0.06
+
+        # Tight spread = good for scalping
+        if ob["spread_pct"] < 0.001:
+            confidence += 0.08
+
+        if confidence >= self.config.min_confidence:
+            signal = SignalType.LONG if ob["imbalance"] > 0 else SignalType.SHORT
+        else:
+            signal = SignalType.NEUTRAL
+
+        mid = ob["mid_price"]
+        direction = 1 if signal == SignalType.LONG else -1
+
+        return TradeSignal(
+            signal=signal,
+            confidence=min(confidence, 0.99),
+            entry_price=mid,
+            take_profit=mid * (1 + direction * self.config.take_profit_pct),
+            stop_loss=mid * (1 - direction * self.config.stop_loss_pct),
+            size_pct=self.config.max_position_size * confidence,
+        )
+
+    async def execute_trade(self, signal: TradeSignal) -> dict:
+        """Execute a trade based on signal"""
+        if signal.signal == SignalType.NEUTRAL:
+            return {"status": "skipped", "reason": "neutral signal"}
+
+        if self.trades_this_hour >= self.config.max_trades_per_hour:
+            return {"status": "skipped", "reason": "hourly limit reached"}
+
+        # Execute via Jupiter/Raydium swap
+        result = await self._submit_swap(signal)
+
+        self.total_trades += 1
+        self.trades_this_hour += 1
+
+        if result.get("pnl", 0) > 0:
+            self.win_count += 1
+
+        self.total_pnl += result.get("pnl", 0)
+
+        logger.info(
+            f"⚡ VOLTIX Trade #{self.total_trades} | "
+            f"PnL: {result.get('pnl', 0):.4f} | "
+            f"Win Rate: {self.win_rate:.1%}"
+        )
+
+        return result
+
+    async def run(self):
+        """Main trading loop"""
+        self.is_running = True
+        logger.info(f"⚡ VOLTIX starting — monitoring {len(self.config.pairs)} pairs")
+
+        while self.is_running:
+            for pair in self.config.pairs:
+                try:
+                    signal = await self.generate_signal(pair)
+                    if signal.signal != SignalType.NEUTRAL:
+                        await self.execute_trade(signal)
+                except Exception as e:
+                    logger.error(f"Error processing {pair}: {e}")
+
+                await asyncio.sleep(self.config.cooldown_seconds)
+
+    async def stop(self):
+        """Stop the agent"""
+        self.is_running = False
+        logger.info(
+            f"⚡ VOLTIX stopped | "
+            f"Trades: {self.total_trades} | "
+            f"PnL: {self.total_pnl:.4f} | "
+            f"Win Rate: {self.win_rate:.1%}"
+        )
+
+    # ===== Internal methods (to be connected to real DEX) =====
+
+    async def _fetch_orderbook(self, pair: str) -> dict:
+        """Fetch orderbook from Jupiter/Raydium — placeholder"""
+        raise NotImplementedError("Connect to DEX API")
+
+    async def _fetch_recent_volume(self, pair: str, window: int) -> float:
+        raise NotImplementedError("Connect to data feed")
+
+    async def _fetch_average_volume(self, pair: str, window: int) -> float:
+        raise NotImplementedError("Connect to data feed")
+
+    async def _submit_swap(self, signal: TradeSignal) -> dict:
+        raise NotImplementedError("Connect to Jupiter swap API")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    agent = VoltixAgent()
+    asyncio.run(agent.run())
+
+"""
+PEXMON AI Agent: TIDEX 🌊
+Shield Arbitrageur — Defensive hedging and arbitrage
+
+Strategy: Finds price discrepancies across DEXs and exploits spreads with minimal risk.
+Risk Profile: Very Low | Speed: 60 | Defense: 95
+"""
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from typing import Optional
+
+logger = logging.getLogger("tidex")
+
+
+@dataclass
+class AgentConfig:
+    name: str = "TIDEX"
+    agent_type: str = "shield_arbitrageur"
+    max_position_size: float = 0.20
+    min_spread_pct: float = 0.003         # Minimum 0.3% spread to trade
+    max_drawdown_pct: float = 0.02        # 2% max drawdown — strict risk
+    scan_interval: int = 5                # Scan every 5 seconds
+    min_confidence: float = 0.85
+    dex_sources: list = None
+
+    def __post_init__(self):
+        if self.dex_sources is None:
+            self.dex_sources = ["jupiter", "raydium", "orca", "meteora"]
+
+
+class TidexAgent:
+    """
+    TIDEX 🌊 — Shield Arbitrageur
+
+    Continuously monitors price across multiple Solana DEXs to find
+    arbitrage opportunities. Executes with minimal risk and tight controls.
+    """
+
+    def __init__(self, config: Optional[AgentConfig] = None):
+        self.config = config or AgentConfig()
+        self.is_running = False
+        self.total_pnl = 0.0
+        self.total_trades = 0
+        self.win_count = 0
+        self.max_drawdown_seen = 0.0
+
+    @property
+    def win_rate(self) -> float:
+        return self.win_count / self.total_trades if self.total_trades > 0 else 0.0
+
+    async def scan_cross_dex_prices(self, pair: str) -> dict:
+        """Fetch price from all DEX sources and find discrepancies"""
+        raise NotImplementedError("Connect to multi-DEX price feeds")
+
+    async def calculate_arbitrage(self, prices: dict) -> Optional[dict]:
+        """Calculate if an arb opportunity exists after fees"""
+        raise NotImplementedError("Implement arb calculation logic")
+
+    async def run(self):
+        self.is_running = True
+        logger.info(f"🌊 TIDEX starting — shield wall activated")
+        while self.is_running:
+            try:
+                for pair in ["SOL/USDC", "RAY/USDC", "JUP/USDC"]:
+                    prices = await self.scan_cross_dex_prices(pair)
+                    await self.calculate_arbitrage(prices)
+            except Exception as e:
+                logger.error(f"Error: {e}")
+            await asyncio.sleep(self.config.scan_interval)
+
+    async def stop(self):
+        self.is_running = False
+        logger.info(f"🌊 TIDEX stopped | Trades: {self.total_trades} | PnL: {self.total_pnl:.4f}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(TidexAgent().run())
+
+            except Exception as e:
+                logger.error(f"Error: {e}")
+            await asyncio.sleep(self.config.scan_interval)
+
+    async def stop(self):
+        self.is_running = False
+        logger.info(f"🔥 IGNIX stopped | Trades: {self.total_trades} | PnL: {self.total_pnl:.4f}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(IgnixAgent().run())
