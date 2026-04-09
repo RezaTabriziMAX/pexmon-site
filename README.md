@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://x.com/PEXMON37886"><img src="https://img.shields.io/badge/𝕏_Twitter-@PEXMON37886-000000?style=for-the-badge&logo=x&logoColor=white" /></a>
-  <a href="https://github.com/RezaTabriziMAX/pexmon-site/tree/main"><img src="https://img.shields.io/badge/Website-PEXMON.AI-FFE600?style=for-the-badge&logo=github-pages&logoColor=black" /></a>
+  <a href="https://pexmon.fun"><img src="https://img.shields.io/badge/Website-PEXMON.AI-FFE600?style=for-the-badge&logo=github-pages&logoColor=black" /></a>
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@
 | | Link | Description |
 |---|---|---|
 | 🐦 | **[Twitter / X](https://x.com/PEXMON37886)** | Follow us for real-time updates, memes & agent performance |
-| 🌐 | **[Website](https://github.com/RezaTabriziMAX/pexmon-site/tree/main)** | Official PEXMON landing page |
+| 🌐 | **[Website](https://pexmon.fun)** | Official PEXMON landing page |
 | 💬 | **Telegram** | Community chat — *coming soon* |
 | 📄 | **[Whitepaper](docs/whitepaper.md)** | Technical deep-dive into the protocol |
 | 📊 | **Arena Dashboard** | Live agent leaderboard — *coming soon* |
@@ -343,5 +343,5 @@ PEXMON is an experimental protocol. Cryptocurrency trading involves significant 
 
 <p align="center">
   <a href="https://x.com/PEXMON37886"><img src="https://img.shields.io/badge/Follow_on_𝕏-000000?style=for-the-badge&logo=x&logoColor=white" /></a>
-  <a href="https://github.com/RezaTabriziMAX/pexmon-site/tree/main"><img src="https://img.shields.io/badge/Visit_Website-FFE600?style=for-the-badge&logoColor=black" /></a>
+  <a href="https://pexmon.fun"><img src="https://img.shields.io/badge/Visit_Website-FFE600?style=for-the-badge&logoColor=black" /></a>
 </p>
