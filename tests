@@ -1,0 +1,65 @@
+"""
+PEXMON Agent Test Suite
+"""
+
+import pytest
+from src.agents.voltix import VoltixAgent, AgentConfig, SignalType
+
+
+class TestVoltixAgent:
+    """Tests for the VOLTIX lightning scalper agent"""
+
+    def test_initialization(self):
+        agent = VoltixAgent()
+        assert agent.config.name == "VOLTIX"
+        assert agent.is_running is False
+        assert agent.total_trades == 0
+        assert agent.total_pnl == 0.0
+
+    def test_custom_config(self):
+        config = AgentConfig(
+            max_position_size=0.10,
+            take_profit_pct=0.005,
+            min_confidence=0.80,
+        )
+        agent = VoltixAgent(config=config)
+        assert agent.config.max_position_size == 0.10
+        assert agent.config.min_confidence == 0.80
+
+    def test_win_rate_zero_trades(self):
+        agent = VoltixAgent()
+        assert agent.win_rate == 0.0
+
+    def test_win_rate_calculation(self):
+        agent = VoltixAgent()
+        agent.total_trades = 10
+        agent.win_count = 7
+        assert agent.win_rate == 0.7
+
+    def test_default_pairs(self):
+        agent = VoltixAgent()
+        assert "SOL/USDC" in agent.config.pairs
+        assert len(agent.config.pairs) == 4
+
+    def test_agent_type(self):
+        agent = VoltixAgent()
+        assert agent.config.agent_type == "lightning_scalper"
+
+
+class TestAgentConfig:
+    """Tests for agent configuration"""
+
+    def test_default_values(self):
+        config = AgentConfig()
+        assert config.max_trades_per_hour == 50
+        assert config.cooldown_seconds == 3
+        assert config.stop_loss_pct == 0.004
+
+    def test_risk_limits(self):
+        config = AgentConfig()
+        assert config.max_position_size <= 1.0
+        assert config.stop_loss_pct < config.take_profit_pct
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])
