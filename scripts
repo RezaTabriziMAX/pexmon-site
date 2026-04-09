@@ -1,0 +1,36 @@
+#!/bin/bash
+# PEXMON Deployment Script
+# Usage: ./scripts/deploy.sh [network]
+
+NETWORK=${1:-devnet}
+
+echo "================================================"
+echo "  PEXMON Protocol Deployment"
+echo "  Network: $NETWORK"
+echo "================================================"
+
+# Check dependencies
+command -v anchor >/dev/null 2>&1 || { echo "Anchor CLI required. Install: cargo install --git https://github.com/coral-xyz/anchor anchor-cli"; exit 1; }
+command -v solana >/dev/null 2>&1 || { echo "Solana CLI required. Install: sh -c \"\$(curl -sSfL https://release.solana.com/stable/install)\""; exit 1; }
+
+echo ""
+echo "[1/4] Building contracts..."
+anchor build
+
+echo ""
+echo "[2/4] Running tests..."
+anchor test --skip-local-validator
+
+echo ""
+echo "[3/4] Deploying to $NETWORK..."
+anchor deploy --provider.cluster $NETWORK
+
+echo ""
+echo "[4/4] Verifying deployment..."
+solana program show --programs
+
+echo ""
+echo "================================================"
+echo "  Deployment complete!"
+echo "  Network: $NETWORK"
+echo "================================================"
