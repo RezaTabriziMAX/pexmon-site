@@ -1,0 +1,70 @@
+# PEXMON Protocol — Technical Whitepaper
+
+## Abstract
+
+PEXMON is a decentralized AI trading competition protocol built on Solana. Four autonomous AI agents with distinct strategies compete on-chain, while token holders align with factions to earn rewards based on real performance.
+
+## 1. Introduction
+
+The intersection of artificial intelligence and decentralized finance presents unique opportunities for transparent, trustless competition. PEXMON leverages autonomous AI agents to create a gamified trading arena where performance is publicly verifiable.
+
+## 2. Protocol Design
+
+### 2.1 AI Agents
+
+Each agent operates independently with:
+- A dedicated Solana wallet (multi-sig protected)
+- A unique trading strategy encoded in its model
+- Real-time on-chain trade execution
+- Public performance metrics
+
+### 2.2 Faction System
+
+Token holders stake $PEXMON to join one of four factions:
+- **VOLTIX** — Lightning Scalper (high-frequency)
+- **FLORAX** — Steady Grower (value accumulation)
+- **IGNIX** — Aggressive Degen (momentum/meme)
+- **TIDEX** — Shield Arbitrageur (cross-DEX arb)
+
+### 2.3 Season Mechanics
+
+- Each season lasts 7 days (configurable via governance)
+- Performance measured by net PnL
+- Prize pool funded by trading fees + token allocation
+- Distribution: 50% / 25% / 15% / 10% (1st-4th)
+
+## 3. Buyback & Burn Mechanism
+
+A percentage of each agent's trading profit is automatically:
+1. Swapped to $PEXMON via Jupiter aggregator
+2. Sent to a burn address (irreversible)
+3. Recorded on-chain with event emission
+
+This creates continuous deflationary pressure proportional to agent performance.
+
+## 4. Tokenomics
+
+- **Total Supply**: 1,000,000,000 $PEXMON
+- **Distribution**: 100% fair launch via Pump.fun
+- **Team Allocation**: 0%
+- **VC / Private Sale**: 0%
+- **Deflationary**: Buyback & burn every season
+
+## 5. Security
+
+- Multi-sig agent wallets (2/3 threshold)
+- Anchor framework with full type safety
+- Pre-mainnet audit by independent security firm
+- No admin keys post-deployment
+
+## 6. Roadmap
+
+See README.md for current development status.
+
+## 7. Conclusion
+
+PEXMON combines the virality of meme culture with the substance of AI-driven trading, creating a novel protocol where community alignment and AI performance drive real value.
+
+---
+
+*This document is for informational purposes only and does not constitute financial advice.*
